@@ -8,7 +8,7 @@ namespace Be.Corebvba.Aubergine.Runner
     public interface ITestResult
     {
         string Description {get;}
-        bool Status {get;}
+        bool? Status {get;}
         IEnumerable<ITestResult> Children {get;}
         string ExtraStatusInfo { get; set; }
     }

@@ -34,10 +34,21 @@ namespace Be.Corebvba.Aubergine.ConsoleRunner
                     Console.WriteLine("==STORY================================================================");
                 }
 
-                System.Console.Write(spacesprepend);
-                System.Console.Write(v.Description);
-                System.Console.Write(" => ");
-                System.Console.WriteLine(v.Status?"OK":"NOK");
+                Console.Write(spacesprepend);
+                Console.Write(v.Description);
+                Console.Write(" => ");
+                switch (v.Status)
+                {
+                    case null:
+                        Console.WriteLine("IMPLEMENTATION ERROR");
+                        break;
+                    case true:
+                        Console.WriteLine("OK");
+                        break;
+                    case false:
+                        Console.WriteLine("NOK");
+                        break;
+                }
                 if (!string.IsNullOrEmpty(v.ExtraStatusInfo))
                     Console.WriteLine(spacesprepend+" INFO : " + v.ExtraStatusInfo );
 

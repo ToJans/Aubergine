@@ -12,22 +12,12 @@ namespace Be.Corebvba.Aubergine.Examples.Accounts.Contexts
         public Account AccountB = new Account();
         public Exception WhenException;
 
+        #region Given
+
         [DSL(@"(?<account>Account[AB])_has_(?<amount>\d+)_m")]
         void accountX_has_Ym(Account account, decimal amount)
         {
             account.Balance = amount * 1m;
-        }
-
-        [DSL(@"it_should_have_(?<amount>\d+)_m_on_(?<account>Account[AB])")]
-        void should_have_Xm_on_AccountY(Account account, decimal amount)
-        {
-            account.Balance.ShouldEqual(amount * 1m);
-        }
-
-        [DSL(@"transfering_(?<amount>\d+)_m_from_(?<from>Account[AB])_to_(?<to>Account[AB])")]
-        void transfering_xm_from_a_to_b(decimal amount, Account from, Account to)
-        {
-            from.Transfer(amount * 1m, to);
         }
 
         [DSL(@"the_current_user_is_authenticated_for_(?<account>Account[AB])")]
@@ -36,16 +26,42 @@ namespace Be.Corebvba.Aubergine.Examples.Accounts.Contexts
             account.IsAuthenticated = true;
         }
 
-        [DSL]
-        void it_should_fail_with_error()
+        #endregion
+
+
+        #region When
+
+        [DSL(@"transfering_(?<amount>\d+)_m_from_(?<from>Account[AB])_to_(?<to>Account[AB])")]
+        void transfering_xm_from_a_to_b(decimal amount, Account from, Account to)
         {
-          (WhenException != null).ShouldEqual(true);
+            from.Transfer(amount * 1m, to);
         }
+        #endregion
+
+        #region Then
+
+        [DSL(@"it_should_have_(?<amount>\d+)_m_on_(?<account>Account[AB])")]
+        bool should_have_Xm_on_AccountY(Account account, decimal amount)
+        {
+            return account.Balance == amount * 1m;
+        }
+
+        [DSL]
+        bool it_should_fail_with_error()
+        {
+           return WhenException != null;
+        }
+
+        #endregion
+
+        #region Recursive DSL
 
         [DSL("(?<name>Account[AB])")]
         Account getaccountAB(string name)
         {
             return this.Get<Account>(name);
         }
+
+        #endregion
     }
 }

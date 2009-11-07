@@ -27,9 +27,9 @@ namespace Be.Corebvba.Aubergine.Examples.Website.Contexts
         }
 
         [DSL("result_should_contain_(?<myurl>.*)")]
-        void ResultShouldContain(string myurl)
+        bool ResultShouldContain(string myurl)
         {
-            Result.Contains(myurl).ShouldEqual(true);
+            return Result.Contains(myurl);
         }
     }
 }

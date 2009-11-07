@@ -94,7 +94,10 @@ namespace Be.Corebvba.Aubergine.Runner
             var q = ReplaceStringsWithOtherStrings(fi.Name, colnames, replacements);
 
             return new TestResult(fi.FieldType.Name + " " + q
-                , o => { CallContextDSL(q, Context,fi.FieldType.Name); return true; }
+                , o => { 
+                    var result = (bool?)CallContextDSL(q, Context,fi.FieldType.Name);
+                    return fi.FieldType.Name == "Then" ? result : true;
+                }
                 , () => new ITestResult[] { }
                 );
         }

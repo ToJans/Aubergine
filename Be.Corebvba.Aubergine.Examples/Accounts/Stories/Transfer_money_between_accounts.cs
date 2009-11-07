@@ -23,25 +23,25 @@ namespace Be.Corebvba.Aubergine.Examples.Accounts.Stories
         {
             Given the_current_user_is_authenticated_for_AccountA;
             When transfering_xx_m_from_AccountA_to_AccountB;
-            Then should_have_yy_m_on_AccountA;
-            Then should_have_zz_m_on_AccountB;
+            Then it_should_have_yy_m_on_AccountA;
+            Then it_should_have_zz_m_on_AccountB;
         }
 
         class Transfer_too_much : Scenario
         {
             Given the_current_user_is_authenticated_for_AccountA;
             When transfering_4_m_from_AccountA_to_AccountB;
-            Then should_have_3_m_on_AccountA;
-            Then should_have_2_m_on_AccountB;
-            Then should_fail_with_error;
+            Then it_should_have_3_m_on_AccountA;
+            Then it_should_have_2_m_on_AccountB;
+            Then it_should_fail_with_error;
         }
 
         class Not_authorized_for_transfer : Scenario
         {
             When transfering_1_m_from_AccountB_to_AccountA;
-            Then should_have_3_m_on_AccountA;
-            Then should_have_2_m_on_AccountB;
-            Then should_fail_with_error;
+            Then it_should_have_3_m_on_AccountA;
+            Then it_should_have_2_m_on_AccountB;
+            Then it_should_fail_with_error;
         }
     }
 }

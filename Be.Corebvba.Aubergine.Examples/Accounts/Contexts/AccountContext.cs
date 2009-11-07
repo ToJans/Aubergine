@@ -12,34 +12,40 @@ namespace Be.Corebvba.Aubergine.Examples.Accounts.Contexts
         public Account AccountB = new Account();
         public Exception WhenException;
 
-        [DSL(@"(Account[AB])_has_(\d+)_m")]
-        void accountX_has_Ym(string x, string y)
+        [DSL(@"(?<account>Account[AB])_has_(?<amount>\d+)_m")]
+        void accountX_has_Ym(Account account, decimal amount)
         {
-            this.Get<Account>(x).Balance = y.As<decimal>() * 1m;
+            account.Balance = amount * 1m;
         }
 
-        [DSL(@"should_have_(\d+)_m_on_(Account[AB])")]
-        void should_have_Xm_on_AccountY(string x, string y)
+        [DSL(@"it_should_have_(?<amount>\d+)_m_on_(?<account>Account[AB])")]
+        void should_have_Xm_on_AccountY(Account account, decimal amount)
         {
-            this.Get<Account>(y).Balance.ShouldEqual(x.As<decimal>() * 1m);
+            account.Balance.ShouldEqual(amount * 1m);
         }
 
-        [DSL(@"transfering_(\d+)_m_from_(Account[AB])_to_(Account[AB])")]
-        void transfering_xm_from_a_to_b(string x, string a, string b)
+        [DSL(@"transfering_(?<amount>\d+)_m_from_(?<from>Account[AB])_to_(?<to>Account[AB])")]
+        void transfering_xm_from_a_to_b(decimal amount, Account from, Account to)
         {
-            this.Get<Account>(a).Transfer(x.As<decimal>() * 1m, this.Get<Account>(b));
+            from.Transfer(amount * 1m, to);
         }
 
-        [DSL(@"the_current_user_is_authenticated_for_(Account[AB])")]
-        void authenticate_for_account_x(string x)
+        [DSL(@"the_current_user_is_authenticated_for_(?<account>Account[AB])")]
+        void authenticate_for_account_x(Account account)
         {
-            this.Get<Account>(x).IsAuthenticated = true;
+            account.IsAuthenticated = true;
         }
 
         [DSL]
         void it_should_fail_with_error()
         {
           (WhenException != null).ShouldEqual(true);
+        }
+
+        [DSL("(?<name>Account[AB])")]
+        Account getaccountAB(string name)
+        {
+            return this.Get<Account>(name);
         }
     }
 }

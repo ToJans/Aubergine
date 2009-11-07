@@ -14,19 +14,19 @@ namespace Be.Corebvba.Aubergine.Examples.Website.Contexts
 
         private WebClient wc = new WebClient();
             
-        [DSL("current_url_is_(.*)")]
+        [DSL("current_url_is_(?<url>.*)")]
         void SetUrl(string url)
         {
             Url = url;
         }
 
-        [DSL("searching_for_(.*)")]
+        [DSL("searching_for_(?<keywords>.*)")]
         void SearchForKeyWords(string keywords)
         {
             Result = wc.DownloadString(Url + HttpUtility.UrlEncode(keywords));
         }
 
-        [DSL("result_should_contain_(.*)")]
+        [DSL("result_should_contain_(?<myurl>.*)")]
         void ResultShouldContain(string myurl)
         {
             Result.Contains(myurl).ShouldEqual(true);

@@ -99,30 +99,43 @@ namespace Be.Corebvba.Aubergine.Runner
                 );
         }
 
-        public static void CallContextDSL(string name, object context,string phasename)
+        public static object CallContextDSL(string name, object context,string phasename)
         {
+            object returnresult = null;
             foreach (var mi in context.GetType().GetMethods(defaultflags))
                 foreach (var attr in mi.GetCustomAttributes(typeof(DSLAttribute), true))
                 {
-                    var regex = ((DSLAttribute)attr).MyRegEx ?? name;
+                    var regex = ((DSLAttribute)attr).MyRegEx ?? mi.Name;
                     var match = Regex.Match(name, "^" + regex + "$");
                     if (!match.Success)
                         continue;
-                    var pars = new List<string>();
-                    for (int i = 1; i < match.Groups.Count; i++)
+                    var pars = new List<object>();
+                    foreach (var pi in mi.GetParameters())
                     {
-                        pars.Add(match.Groups[i].Value);
+                        var strval = match.Groups[pi.Name].Value;
+                        object result = null;
+                        if (strval == match.Value)
+                            result = Convert.ChangeType(strval, pi.ParameterType);
+                        else
+                            try
+                            {
+                                result = CallContextDSL(strval, context, "ghkazbnkazbkeaz");
+                            } catch(Exception)
+                            {
+                                result = Convert.ChangeType(strval, pi.ParameterType);
+                            }
+                        pars.Add(result);
                     }
                     try
                     {
-                        mi.Invoke(context, pars.ToArray());
+                        returnresult = mi.Invoke(context, pars.ToArray());
                     }
                     catch (Exception exc)
                     {
                         try
                         {
                             context.Set(phasename + "Exception",exc);
-                            return;
+                            return returnresult;
                         }
                         catch (Exception)
                         {
@@ -130,7 +143,7 @@ namespace Be.Corebvba.Aubergine.Runner
                         }
                         throw;
                     }
-                    return;
+                    return returnresult;
                 }
             throw new NotImplementedException(string.Format("DSL<{0}> : {1}", context.GetType(), name));
         }

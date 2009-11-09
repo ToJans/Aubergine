@@ -125,7 +125,10 @@ namespace Be.Corebvba.Aubergine.Runner
                                 result = CallContextDSL(strval, context, "ghkazbnkazbkeaz");
                             } catch(Exception)
                             {
-                                result = Convert.ChangeType(strval, pi.ParameterType);
+                                if (pi.ParameterType.IsEnum)
+                                    result = Enum.Parse(pi.ParameterType,strval,true);
+                                else
+                                    result = Convert.ChangeType(strval, pi.ParameterType);
                             }
                         pars.Add(result);
                     }

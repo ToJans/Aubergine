@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Be.Corebvba.Aubergine
+namespace Be.Corebvba.Aubergine.ClassStory
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class DataAttribute : System.Attribute

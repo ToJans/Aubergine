@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Net;
 using System.Web;
+using Be.Corebvba.Aubergine.Model;
 
 namespace Be.Corebvba.Aubergine.Examples.Website.Contexts
 {
@@ -14,22 +15,44 @@ namespace Be.Corebvba.Aubergine.Examples.Website.Contexts
 
         private WebClient wc = new WebClient();
             
-        [DSL("current_url_is_(?<url>.*)")]
+        [DSL("the current url is '(?<url>.*)'")]
         void SetUrl(string url)
         {
             Url = url;
         }
 
-        [DSL("searching_for_(?<keywords>.*)")]
+        [DSL("searching for '(?<keywords>.*)'")]
         void SearchForKeyWords(string keywords)
         {
             Result = wc.DownloadString(Url + HttpUtility.UrlEncode(keywords));
         }
 
-        [DSL("result_should_contain_(?<myurl>.*)")]
+        [DSL("searching for the following keywords")]
+        void SearchForKeyWords(string[] keywords)
+        {
+            Result = wc.DownloadString(Url + HttpUtility.UrlEncode(string.Join(" ",keywords)));
+        }
+
+
+        [DSL("the result should contain '(?<myurl>.*)'")]
         bool ResultShouldContain(string myurl)
         {
-            return Result.Contains(myurl);
+            return (Result??"").Contains(myurl);
+        }
+
+        [DSL("the result should contain '(?<avalue>.+)' and the following markup elements")]
+        bool ResultShouldContain(string avalue,string[] type,string[]inner)
+        {
+            if (string.IsNullOrEmpty(Result) ||type.Length==0) 
+                return false;
+            if (!Result.Contains(avalue)) return false;
+            for (var i = 0;i < type.Length ; i++)
+            {
+                var searchstring = string.Format("<{0}>{1}</{0}>", type[i], inner[i]);
+                if (!Result.Contains(searchstring))
+                    return false;
+            }
+            return true;
         }
     }
 }

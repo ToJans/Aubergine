@@ -9,7 +9,7 @@
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Be.Corebvba.Aubergine.ConsoleRunner</RootNamespace>
-    <AssemblyName>Be.Corebvba.Aubergine.ConsoleRunner</AssemblyName>
+    <AssemblyName>ConsoleRunner</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -49,10 +49,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Be.Corebvba.Aubergine.Examples\Be.Corebvba.Aubergine.Examples.csproj">
-      <Project>{47B2382C-6533-499E-A1E1-1B53BEDEE7AB}</Project>
-      <Name>Be.Corebvba.Aubergine.Examples</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Be.Corebvba.Aubergine\Be.Corebvba.Aubergine.csproj">
       <Project>{3E4E80B8-E76E-4FBD-B900-A787512CEBC4}</Project>
       <Name>Be.Corebvba.Aubergine</Name>

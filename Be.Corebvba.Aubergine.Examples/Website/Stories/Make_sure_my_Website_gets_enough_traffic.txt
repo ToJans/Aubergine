@@ -1,0 +1,39 @@
+﻿Context    Be.Corebvba.Aubergine.Examples.Website.Contexts.BrowserContext
+ContextDLL Be.Corebvba.Aubergine.Examples.DLL
+
+Story Make sure my website gets enough visibility
+    As a website owner
+    I want to make sure that I get enough visibility
+    So that I can get enough traffic
+
+    Scenario Search results for 'keywords' on searchengine should contain 'my url' 
+        Given the current url is 'search url'
+        When searching for 'keywords'
+        Then the result should contain 'my url'
+		Example
+		+--------------+--------------------------------+------------------+-----------------+
+		| searchengine | search url                     | keywords         | my url          |
+		+--------------+--------------------------------+------------------+-----------------+
+		| google       | http://www.google.be/search?q= | BDD .Net         | www.corebvba.be |
+		| bing         | http://www.bing.com/search?q=  | core bvba tom    | www.corebvba.be |
+		| bing         | http://www.bing.com/search?q=  | Quantum physics  | www.corebvba.be |
+		| faulty link  | http://www.googleaaa           | core bvba tom    | www.corebvba.be |
+		+--------------+--------------------------------+------------------+-----------------+
+
+    Scenario Search results on google for keywords should contain 'www.corebvba.be' 
+        Given the current url is 'http://www.google.be/search?q=' 
+        When searching for the following keywords
+			+-----------+
+			| keywords  |
+			+-----------+
+			| Aubergine |
+			| BDD       |
+			+-----------+
+        Then the result should contain 'www.corebvba.be' and the following markup elements
+			+------------------+
+			| type | inner     |
+			+------------------+
+			| em   | BDD       |
+			| em   | Aubergine |
+			+------------------+
+    

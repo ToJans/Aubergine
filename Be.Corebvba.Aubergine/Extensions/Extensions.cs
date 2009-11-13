@@ -4,11 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.UI;
+using System.Reflection;
 
 namespace Be.Corebvba.Aubergine.Extensions
 {
     public static class ExtensionsImpl
     {
+        const BindingFlags defaultflags = BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public;
+
         public static void ShouldEqual(this object o1, object o2)
         {
             bool isequal = false;
@@ -32,10 +35,10 @@ namespace Be.Corebvba.Aubergine.Extensions
         public static T Get<T>(this object o, string name)
         {
             var t = o.GetType();
-            var x = t.GetProperty(name);
+            var x = t.GetProperty(name,defaultflags);
             if (x != null)
                 return (T)x.GetValue(o, null);
-            var y = t.GetField(name);
+            var y = t.GetField(name, defaultflags);
             if (y != null)
                 return (T)y.GetValue(o);
             throw new ArgumentOutOfRangeException("Unknown field/property : " + name);
@@ -44,16 +47,20 @@ namespace Be.Corebvba.Aubergine.Extensions
         public static void Set(this object o, string name, object value)
         {
             var t = o.GetType();
-            var x = t.GetProperty(name);
+            var x = t.GetProperty(name, defaultflags);
             if (x != null)
             {
-                x.SetValue(o, value, null);
+                var q = value;
+                if (q.GetType() != x.PropertyType) q = Convert.ChangeType(value, x.PropertyType);
+                x.SetValue(o, q, null);
                 return;
             }
-            var y = t.GetField(name);
+            var y = t.GetField(name, defaultflags);
             if (y != null)
             {
-                y.SetValue(o, value);
+                var q = value;
+                if (q.GetType() != y.FieldType) q = Convert.ChangeType(value, y.FieldType);
+                y.SetValue(o, q);
                 return;
             }
             throw new ArgumentOutOfRangeException("Unknown field/property : " + name);

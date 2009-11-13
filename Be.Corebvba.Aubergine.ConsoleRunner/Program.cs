@@ -83,7 +83,7 @@ namespace Be.Corebvba.Aubergine.ConsoleRunner
         static void PrettyPrint(IElement v, int depth,string header,string fmt,string footer)
         {
             var whitespace = "".PadLeft(depth * 4);
-            Console.WriteLine(whitespace+fmt.FormatWith(v));
+            Console.WriteLine(whitespace+fmt.FormatWith(v).Replace("GivenIdid","Given I did"));
             if (!string.IsNullOrEmpty(header))
                 Console.WriteLine(whitespace+header);
             foreach (var c in v.Children)

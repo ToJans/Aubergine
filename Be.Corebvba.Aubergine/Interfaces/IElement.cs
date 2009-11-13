@@ -21,6 +21,7 @@ namespace Be.Corebvba.Aubergine.Interfaces
     {
         Story,
         Scenario,
+        GivenIdid,
         Given,
         When,
         Then,

@@ -50,7 +50,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Accounts\Contexts\AccountContext.cs" />
-    <Compile Include="Accounts\SoftwareToTest\Account.cs" />
+    <Compile Include="Accounts\SoftwareToTest\Model\Account.cs" />
+    <Compile Include="Accounts\SoftwareToTest\Services\AccountService.cs" />
+    <Compile Include="Accounts\SoftwareToTest\Model\Transaction.cs" />
+    <Compile Include="Accounts\SoftwareToTest\Model\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Website\Contexts\BrowserContext.cs" />
     <Content Include="Website\Stories\Make_sure_my_Website_gets_enough_traffic.txt">

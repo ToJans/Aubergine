@@ -9,37 +9,54 @@ Story Transfer money between accounts
 	I want to transfer money between accounts
 	So that I can have real use for my money
 
-	Given AccountA has 3m
-	Given AccountB has 2m
+	Given the balance of AccountA is 3m
+	Given the balance of AccountB is 2m
+	Given the owner of AccountA is the current user
+	
+	Scenario Authenticate the current user as a 'valid or invalid' user
+	    Given the name of the current user is 'username'
+	      And the password of the current user is 'password'
+	    When I request authentication for the current user 
+		Then the process should 'fail or succeed'
+	    
+	    Example
+			+--------------------+------------+------------+------------------+
+			| 'valid or invalid' | 'username' | 'password' | 'fail or succeed'|
+			+--------------------+------------+------------+------------------+
+			| valid              | Neo        | Red pill   | succeed          |
+			| invalid            | Neo        | Blue pill  | fail             |
+			+--------------------+------------+------------+------------------+
+			    
+	Scenario Authenticate the current user for 'an account'
+		Given I did authenticate the current user as a valid user
+		When I request authentication for 'an account' with the current user
+		Then the process should 'fail or succeed'
+		
+		Example accounts :
+			+--------------+-------------------+
+			| 'an account' | 'fail or succeed' |
+			+--------------+-------------------+
+			|  AccountA    | succeed           |
+			|  AccountB    | fail              |
+			+--------------+-------------------+
+		
 
 	Scenario Transfer AAm between 2 accounts 
-
-		Given the current user is authenticated for AccountA
-		When transfering AAm from AccountA to AccountB
-		Then it should have BBm on AccountA
-		Then it should have CCm on AccountB
+		Given I did authenticate the current user for AccountA
+		When I transfer AAm from AccountA to AccountB with the current user
+		Then the balance of AccountA should be BBm  
+		Then the balance of AccountB should be CCm  
+		Then the process should 'fail or succeed'
 		
 		Example for the transfer
 
-			+----+----+----+
-			| AA | BB | CC |
-			+----+----+----+
-			|  1 |  2 |  3 |
-			|  2 |  1 |  4 |
-			|  3 |  0 |  5 |
-			+----+----+----+
+			+----+----+----+-------------------+
+			| AA | BB | CC | 'fail or succeed' |
+			+----+----+----+-------------------+
+			|  1 |  2 |  3 | succeed           |
+			|  2 |  1 |  4 | succeed           |
+			|  3 |  0 |  5 | succeed           |
+			|  4 |  3 |  2 | fail              |
+			+----+----+----+-------------------+
 
-	Scenario Transfer too much 
-	
-		Given the current user is authenticated for AccountA
-		When transfering 4m from AccountA to AccountB
-		Then it should have 3m on AccountA
-		Then it should have 2m on AccountB
-		Then it should fail with error
 
-	Scenario Not authorized for transfer
-	
-		When transfering 1m from AccountB to AccountA
-		Then it should have 3m on AccountA
-		Then it should have 2m on AccountB
-		Then it should fail with error

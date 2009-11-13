@@ -51,6 +51,7 @@ namespace Be.Corebvba.Aubergine.Services.Extractors
                 var q =
                     TransformText(v, "story ", ElementType.Story) ??
                     TransformText(v, "scenario ", ElementType.Scenario) ??
+                    TransformText(v, "given i did ", ElementType.GivenIdid) ??
                     TransformText(v, "given ", ElementType.Given) ??
                     TransformText(v, "when ", ElementType.When) ??
                     TransformText(v, "then ", ElementType.Then) ??
@@ -87,6 +88,11 @@ namespace Be.Corebvba.Aubergine.Services.Extractors
                             StoryChildren.Add(q);
                         else
                             ScenarioChildren.Add(q);
+                        DataChildren = new List<IElement>();
+                        q.Children = DataChildren;
+                        break;
+                    case ElementType.GivenIdid:
+                        ScenarioChildren.Add(q);
                         DataChildren = new List<IElement>();
                         q.Children = DataChildren;
                         break;

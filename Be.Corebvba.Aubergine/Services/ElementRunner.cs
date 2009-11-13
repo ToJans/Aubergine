@@ -12,7 +12,8 @@ namespace Be.Corebvba.Aubergine.Services
 {
     public class ElementRunner
     {
-        const BindingFlags defaultflags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+        const BindingFlags defaultflags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance|BindingFlags.Static|
+            BindingFlags.GetProperty|BindingFlags.SetProperty|BindingFlags.GetField|BindingFlags.SetField;
 
         public IElement RunStory(IStoryContainer storycontainer)
         {
@@ -24,13 +25,13 @@ namespace Be.Corebvba.Aubergine.Services
                 var newchildren = new List<IElement>(result.Children.Where(o => o.Type != ElementType.Scenario));
                 foreach (var sc in element.Children.Where(e => e.Type == ElementType.Scenario))
                 {
-                    var example = GetData(sc.Children.Where(o => o.Type == ElementType.Example).FirstOrDefault(),storycontainer.ColumnToken);
+                    var example = GetData(sc.Children.Where(o => o.Type == ElementType.Example).FirstOrDefault(), storycontainer.ColumnToken);
                     if (example.Keys.Count() > 0)
                     {
-                         for (var j=0;j<example[example.Keys.First()].Count;j++)
-                         {
-                             IElement x = sc.Clone();
-                             x.Children = x.Children.Where(o => o.Type != ElementType.Example).Select(o => o.Clone()).ToArray();
+                        for (var j = 0; j < example[example.Keys.First()].Count; j++)
+                        {
+                            IElement x = sc.Clone();
+                            x.Children = x.Children.Where(o => o.Type != ElementType.Example).Select(o => o.Clone()).ToArray();
 
                             foreach (var n in example.Keys)
                             {
@@ -48,7 +49,7 @@ namespace Be.Corebvba.Aubergine.Services
                 }
                 result.Children = newchildren;
                 foreach (var q in result.Children)
-                    RunScenario(q, Activator.CreateInstance(storycontainer.ContextType),storycontainer.ColumnToken);
+                    RunScenario(q, Activator.CreateInstance(storycontainer.ContextType), storycontainer.ColumnToken, true);
                 return result;
 
             }
@@ -62,20 +63,20 @@ namespace Be.Corebvba.Aubergine.Services
             return element;
         }
 
-        private Dictionary<string, List<string>> GetData(IElement e,string columnseperator)
+        private Dictionary<string, List<string>> GetData(IElement e, string columnseperator)
         {
             var l = new Dictionary<string, List<string>>();
             if (e == null) return l;
             var rows = e.Children.Where(o => o.Type == ElementType.Data).ToArray();
             if (rows.Count() < 2) return l;
-            var names = rows[0].Description.Split(columnseperator.ToCharArray()).Select(o=>o.Trim()).ToArray();
+            var names = rows[0].Description.Split(columnseperator.ToCharArray()).Select(o => o.Trim()).ToArray();
             foreach (var r in rows.Skip(1))
             {
-                var vals = r.Description.Split(columnseperator.ToCharArray()).Select(o=>o.Trim()).ToArray();
-                for (int i = 1; i < names.Count()-1; i++)
+                var vals = r.Description.Split(columnseperator.ToCharArray()).Select(o => o.Trim()).ToArray();
+                for (int i = 1; i < names.Count() - 1; i++)
                 {
                     if (!l.ContainsKey(names[i]))
-                        l.Add(names[i],new List<string>());
+                        l.Add(names[i], new List<string>());
                     if (i >= vals.Length)
                         l[names[i]].Add("");
                     else
@@ -85,16 +86,19 @@ namespace Be.Corebvba.Aubergine.Services
             return l;
         }
 
-        public void RunScenario(IElement element, object context,string columnseperator)
+        public void RunScenario(IElement element, object context, string columnseperator, bool includeStoryGivens)
         {
             try
             {
                 if (element.Type != ElementType.Scenario) return;
-                foreach (var x in element.Parent.Children.Where(e => e.Type == ElementType.Given))
-                    RunStep(x, context,columnseperator);
-                foreach (var y in new ElementType[] { ElementType.Given, ElementType.When, ElementType.Then })
+                if (includeStoryGivens)
+                {
+                    foreach (var x in element.Parent.Children.Where(e => e.Type == ElementType.Given))
+                        RunStep(x, context, columnseperator);
+                }
+                foreach (var y in new ElementType[] { ElementType.GivenIdid, ElementType.Given, ElementType.When, ElementType.Then })
                     foreach (var x in element.Children.Where(e => e.Type == y))
-                        RunStep(x, context,columnseperator);
+                        RunStep(x, context, columnseperator);
             }
             catch (Exception ex)
             {
@@ -105,15 +109,31 @@ namespace Be.Corebvba.Aubergine.Services
             }
         }
 
-        void RunStep(IElement element, object context,string columnseparator)
+
+
+        void RunStep(IElement element, object context, string columnseparator)
         {
             try
             {
-                var res = CallContextDSL(element.Description, context, element.Type.ToString(),()=>GetData(element,columnseparator));
-                if (element.Type == ElementType.Then)
-                    element.Status = (bool)res;
+                if (element.Type == ElementType.GivenIdid)
+                {
+                    var scenario = element.Parent.Parent.Children
+                        .Where(o => o.Type == ElementType.Scenario 
+                            && string.Compare(o.Description, element.Description, true) == 0)
+                        .FirstOrDefault();
+                    if (scenario == null)
+                        throw new ArgumentException("Unknown scenario : " + element.Description);
+                    RunScenario(scenario, context, columnseparator, false);
+                }
                 else
-                    element.Status = true;
+                {
+
+                    var res = CallContextDSL(element.Description, context, element.Type.ToString(), () => GetData(element, columnseparator));
+                    if (element.Type == ElementType.Then)
+                        element.Status = (bool)res;
+                    else
+                        element.Status = true;
+                }
             }
             catch (Exception ex)
             {
@@ -129,11 +149,13 @@ namespace Be.Corebvba.Aubergine.Services
         {
             object returnresult = null;
             var tbl = GetTable();
+            name = name.Trim();
             foreach (var mi in context.GetType().GetMethods(defaultflags))
                 foreach (var attr in mi.GetCustomAttributes(typeof(DSLAttribute), true))
                 {
                     var regex = ((DSLAttribute)attr).MyRegEx ?? mi.Name;
                     var match = Regex.Match(name, "^" + regex + "$", RegexOptions.IgnoreCase);
+                    
                     if (!match.Success)
                     {
                         if (regex == mi.Name)
@@ -143,32 +165,46 @@ namespace Be.Corebvba.Aubergine.Services
                         }
                     }
                     if (!match.Success) continue;
+
+                    // put breakpoint here break on non-recursive calls
+                    if (phasename != "ghkazbnkazbkeaz")
+                        phasename = phasename;
                     var pars = new List<object>();
-                    foreach (var pi in mi.GetParameters())
+                    try
                     {
-                        var strval = match.Groups[pi.Name].Value;
-                        object result = null;
-                        if (tbl != null && tbl.Keys.Count > 0 && tbl.ContainsKey(pi.Name) && pi.ParameterType.IsArray)
+                        foreach (var pi in mi.GetParameters())
                         {
-                            var eltype = pi.ParameterType.GetElementType();
-                            var arr = Array.CreateInstance(eltype,tbl[pi.Name].Count);
-                            for (int i =0;i< arr.Length;i++)
+                            var strval = match.Groups[pi.Name].Value;
+                            object result = null;
+                            if (tbl != null && tbl.Keys.Count > 0 && tbl.ContainsKey(pi.Name) && pi.ParameterType.IsArray)
                             {
-                                arr.SetValue(ConvertTypeForDSL(tbl[pi.Name][i],context,eltype ),i);
+                                var eltype = pi.ParameterType.GetElementType();
+                                var arr = Array.CreateInstance(eltype, tbl[pi.Name].Count);
+                                for (int i = 0; i < arr.Length; i++)
+                                {
+                                    arr.SetValue(ConvertTypeForDSL(tbl[pi.Name][i], context, eltype), i);
+                                }
+                                result = arr;
                             }
-                            result = arr;
-                        }
-                        else
-                        {
-                            if (strval == match.Value)
-                                result = Convert.ChangeType(strval, pi.ParameterType);
                             else
                             {
-                                result = ConvertTypeForDSL(strval, context, pi.ParameterType);
+                                if (strval == match.Value)
+                                    result = Convert.ChangeType(strval, pi.ParameterType);
+                                else
+                                {
+                                    result = ConvertTypeForDSL(strval, context, pi.ParameterType);
+                                }
                             }
+                            pars.Add(result);
                         }
-                        pars.Add(result);
                     }
+                    catch (Exception)
+                    {
+                        // if the parameter conversion fails try to execute the next DSL match
+                        continue;
+                    }
+
+                    // call the DSL function
                     try
                     {
                         returnresult = mi.Invoke(context, pars.ToArray());
@@ -177,6 +213,7 @@ namespace Be.Corebvba.Aubergine.Services
                     {
                         try
                         {
+                            // if exception field is provided, catch it in this field, else rethrow
                             context.Set(phasename + "Exception", exc);
                             return returnresult;
                         }
@@ -188,10 +225,10 @@ namespace Be.Corebvba.Aubergine.Services
                     }
                     return returnresult;
                 }
-            throw new NotImplementedException(string.Format("DSL<{0}> can not be found/called:\n {1}", context.GetType(), name));
+            throw new NotImplementedException(string.Format("Unknown / missing DSL:\n{1}", context.GetType(), name));
         }
 
-        private static object ConvertTypeForDSL(string strval,object context, Type desttype)
+        private static object ConvertTypeForDSL(string strval, object context, Type desttype)
         {
             object result = null;
             try

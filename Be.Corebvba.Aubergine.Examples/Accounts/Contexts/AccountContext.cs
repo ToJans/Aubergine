@@ -4,59 +4,61 @@ using System.Linq;
 using System.Text;
 using Be.Corebvba.Aubergine.Model;
 using Be.Corebvba.Aubergine.Extensions;
-using Be.Corebvba.Aubergine.Examples.Accounts.SoftwareToTest;
+using Be.Corebvba.Aubergine.Examples.Accounts.SoftwareToTest.Model;
+using Be.Corebvba.Aubergine.Examples.Accounts.SoftwareToTest.Services;
 
 namespace Be.Corebvba.Aubergine.Examples.Accounts.Contexts
 {
     internal class AccountContext
     {
+        public User currentUser = new User();
         public Account AccountA = new Account();
         public Account AccountB = new Account();
-        public Exception WhenException;
+        public AccountService AccountService = new AccountService();
+        public ProcessStatus LastStatus;
 
-        #region Given
-
-        [DSL(@"(?<account>Account[AB]) has (?<amount>.+)")]
-        void accountX_has_Ym(Account account, decimal amount)
+        [DSL(@"the (?<member>.+) of (?<instance>.+) is (?<value>.+)")]
+        void assignfield(object instance,string member,object value)
         {
-            account.Balance = amount * 1m;
+            instance.Set(member, value);
         }
 
-        [DSL(@"the current user is authenticated for (?<account>Account[AB])")]
-        void authenticate_for_account_x(Account account)
+        [DSL(@"the (?<member>.+) of (?<instance>.+) should be (?<value>.*)")]
+        bool shouldbefield(object instance, string member, object value)
         {
-            account.IsAuthenticated = true;
+            var obj = instance.Get<object>(member);
+            return Convert.ChangeType(value, obj.GetType()).Equals(obj);
         }
 
-        #endregion
-
-
-        #region When
-
-        [DSL(@"transfering (?<amount>.+) from (?<from>Account[AB]) to (?<to>Account[AB])")]
-        void transfering_xm_from_a_to_b(decimal amount, Account from, Account to)
+        [DSL(@"I request authentication for (?<user>.+)")]
+        void authenticate_for_account_x(User user)
         {
-            from.Transfer(amount * 1m, to);
+            LastStatus = AccountService.AuthenticateUser(user);
         }
-        #endregion
 
-        #region Then
-
-        [DSL(@"it should have (?<amount>.+) on (?<account>Account[AB])")]
-        bool should_have_Xm_on_AccountY(Account account, decimal amount)
+        [DSL(@"I request authentication for (?<account>.+) with (?<user>.+)")]
+        void authenticate_for_account_x(User user, Account account)
         {
-            return account.Balance == amount * 1m;
+            LastStatus =  AccountService.AuthenticateUserForAccount(account,user);
+        }
+        
+        [DSL(@"I transfer (?<amount>.+) from (?<from>.+) to (?<to>.+) with (?<user>.+)")]
+        void transfering_xm_from_a_to_b(decimal amount, Account from, Account to,User user)
+        {
+            LastStatus = AccountService.Transfer(user,amount, from,to);
         }
 
         [DSL]
-        bool it_should_fail_with_error()
+        bool The_process_should_fail()
         {
-           return WhenException != null;
+            return LastStatus.Success == false;
         }
 
-        #endregion
-
-        #region Recursive DSL
+        [DSL]
+        bool The_process_should_succeed()
+        {
+            return LastStatus.Success == true;
+        }
 
         [DSL("(?<name>Account[AB])")]
         Account getaccountAB(string name)
@@ -64,12 +66,16 @@ namespace Be.Corebvba.Aubergine.Examples.Accounts.Contexts
             return this.Get<Account>(name);
         }
 
-        [DSL(@"(?<amount>\d+)m")]
-        decimal getmillion(decimal amount)
+        [DSL(@"(?<amount>\d+)(?<ismillion>m?)")]
+        decimal getmillion(decimal amount,string  ismillon)
         {
-            return amount * 1m;
+            return amount*(ismillon=="m"?1m:1);
         }
 
-        #endregion
+        [DSL]
+        User the_current_user()
+        {
+            return currentUser;
+        }
     }
 }

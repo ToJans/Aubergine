@@ -11,11 +11,11 @@ namespace Be.Corebvba.Aubergine.Model
 
         #region IStoryContainer Members
 
-        public Type ContextType {get;set;}
+        public ISpecElement Story { get; set; }
 
-        public IElement Story { get; set; }
+        public string ColumnToken { get; set; }
 
-        public string ColumnToken { get; set; } 
+        public string ContextName { get; set; }
 
         #endregion
     }

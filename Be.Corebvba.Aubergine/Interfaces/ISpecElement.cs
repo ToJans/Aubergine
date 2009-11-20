@@ -5,15 +5,15 @@ using System.Text;
 
 namespace Be.Corebvba.Aubergine.Interfaces
 {
-    public interface IElement
+    public interface ISpecElement
     {
         string Description { get; set; }
         bool? Status { get; set; }
-        IEnumerable<IElement> Children { get;set;} 
+        IEnumerable<ISpecElement> Children { get;set;} 
         string StatusInfo { get; set; }
         ElementType Type{get;}
-        IElement Parent { get; set; }
-        IElement Clone();
+        ISpecElement Parent { get; set; }
+        ISpecElement Clone();
         string StatusText { get; }
     }
 
@@ -26,7 +26,8 @@ namespace Be.Corebvba.Aubergine.Interfaces
         When,
         Then,
         Example,
-        Data
+        Data,
+        Context
     }
 
 

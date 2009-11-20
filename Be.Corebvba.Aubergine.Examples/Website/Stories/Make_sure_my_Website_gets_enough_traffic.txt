@@ -1,7 +1,10 @@
-﻿Context    Be.Corebvba.Aubergine.Examples.Website.Contexts.BrowserContext
-ContextDLL Be.Corebvba.Aubergine.Examples.DLL
+﻿Define a browser
+ using Be.Corebvba.Aubergine.Examples.Website.Contexts.BrowserContext
+  from Be.Corebvba.Aubergine.Examples.DLL
 
 Story Make sure my website gets enough visibility
+    Is about a browser
+    
     As a website owner
     I want to make sure that I get enough visibility
     So that I can get enough traffic

@@ -7,6 +7,8 @@ namespace Be.Corebvba.Aubergine.Examples.Accounts.SoftwareToTest.Model
 {
     public class Account
     {
+        public string Number { get; set; }
+
         public Account()
         {
             Balance = 0;

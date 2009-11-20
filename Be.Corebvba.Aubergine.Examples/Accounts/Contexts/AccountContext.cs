@@ -6,16 +6,29 @@ using Be.Corebvba.Aubergine.Model;
 using Be.Corebvba.Aubergine.Extensions;
 using Be.Corebvba.Aubergine.Examples.Accounts.SoftwareToTest.Model;
 using Be.Corebvba.Aubergine.Examples.Accounts.SoftwareToTest.Services;
+using Be.Corebvba.Aubergine.Examples.Accounts.SoftwareToTest.Controllers;
+using Be.Corebvba.Aubergine.Examples.Accounts.SoftwareToTest.ViewModels;
 
 namespace Be.Corebvba.Aubergine.Examples.Accounts.Contexts
 {
     internal class AccountContext
     {
-        public User currentUser = new User();
-        public Account AccountA = new Account();
-        public Account AccountB = new Account();
-        public AccountService AccountService = new AccountService();
+        public GenericRepository<User> rUser;
+        public GenericRepository<Account> rAccount;
+        public AccountService AccountService;
         public ProcessStatus LastStatus;
+
+
+        public ControllerBuilder cb;
+        public BaseController LastController;
+
+        public AccountContext()
+        {
+            rUser = new GenericRepository<User>((u,n)=>u.Name ==n);
+            rAccount = new GenericRepository<Account>((a,n)=>a.Number==n);
+            AccountService = new AccountService(rUser, rAccount);
+            cb = new ControllerBuilder(AccountService);
+        }
 
         [DSL(@"the (?<member>.+) of (?<instance>.+) is (?<value>.+)")]
         void assignfield(object instance,string member,object value)
@@ -30,18 +43,26 @@ namespace Be.Corebvba.Aubergine.Examples.Accounts.Contexts
             return Convert.ChangeType(value, obj.GetType()).Equals(obj);
         }
 
-        [DSL(@"I request authentication for (?<user>.+)")]
-        void authenticate_for_account_x(User user)
+        [DSL]
+        void the_following_users(string[] username, string[] password)
         {
-            LastStatus = AccountService.AuthenticateUser(user);
+            for (var i = 0; i < username.Length; i++)
+                rUser.Add(new User() { Name = username[i], Password = password[i] });
         }
 
-        [DSL(@"I request authentication for (?<account>.+) with (?<user>.+)")]
-        void authenticate_for_account_x(User user, Account account)
+        [DSL]
+        void the_following_accounts(string[] number, decimal[] balance,User[] owner)
         {
-            LastStatus =  AccountService.AuthenticateUserForAccount(account,user);
+            for (var i = 0; i < number.Length; i++)
+                rAccount.Add(new Account() { Number = number[i], Balance = balance[i],Owner = owner[i] });
         }
-        
+
+        [DSL(@"the user (?<username>.*)")]
+        User GetUser(string username)
+        {
+            return rUser.Find(username);
+        }
+
         [DSL(@"I transfer (?<amount>.+) from (?<from>.+) to (?<to>.+) with (?<user>.+)")]
         void transfering_xm_from_a_to_b(decimal amount, Account from, Account to,User user)
         {
@@ -60,22 +81,55 @@ namespace Be.Corebvba.Aubergine.Examples.Accounts.Contexts
             return LastStatus.Success == true;
         }
 
-        [DSL("(?<name>Account[AB])")]
-        Account getaccountAB(string name)
-        {
-            return this.Get<Account>(name);
-        }
-
         [DSL(@"(?<amount>\d+)(?<ismillion>m?)")]
         decimal getmillion(decimal amount,string  ismillon)
         {
             return amount*(ismillon=="m"?1m:1);
         }
 
-        [DSL]
-        User the_current_user()
+        [DSL(@"I go to the (?<screenname>.+) screen")]
+        void Navigate(string screenname)
         {
-            return currentUser;
+            if (screenname.ToLower().Trim() == "login")
+            {
+                LastController  = cb.GetController<LoginController>(x=>x.Login());
+            }
+            else
+                throw new ArgumentException("Unknown screen : " + screenname);
         }
+
+        [DSL(@"I enter (?<value>.+) as the (?<member>.+)")]
+        void assignscreenfield(string member, object value)
+        {
+             LastController.Result.ViewModel.Set(member, value);
+        }
+
+        [DSL(@"I click the (?<element>.*)")]
+        void click(string element)
+        {
+            var x = LastController as LoginController;
+            if (x!=null)
+            {
+                if (element.ToLower().Trim() == "login button")
+                {
+                    x.ValidateLogin();
+                    return;
+                }
+            }
+            throw new ArgumentException("Unknown element in view : " + element);
+        }
+
+        [DSL]
+        ViewModel the_result()
+        {
+            return LastController.Result.ViewModel;
+        }
+
+        [DSL(@"account (?<account>.*)")]
+        Account GetAccount(string account)
+        {
+            return rAccount.Find(account.Trim());
+        }
+
     }
 }

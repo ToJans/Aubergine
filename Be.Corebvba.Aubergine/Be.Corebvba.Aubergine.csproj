@@ -35,7 +35,9 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -46,22 +48,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClassStory\ColsAttribute.cs" />
-    <Compile Include="ClassStory\DataAttribute.cs" />
+    <Compile Include="Interfaces\IDSLDefinition.cs" />
+    <Compile Include="Interfaces\IDSLRunner.cs" />
     <Compile Include="Model\DSLAttribute.cs" />
     <Compile Include="Extensions\Extensions.cs" />
     <Compile Include="Interfaces\IStoryContainer.cs" />
-    <Compile Include="Interfaces\IStoryExtractor.cs" />
-    <Compile Include="Interfaces\IElement.cs" />
+    <Compile Include="Interfaces\IExtractors.cs" />
+    <Compile Include="Interfaces\ISpecElement.cs" />
+    <Compile Include="Model\DSLDefinition.cs" />
+    <Compile Include="Model\DSLElement.cs" />
     <Compile Include="Model\Element.cs" />
     <Compile Include="Model\Language.cs" />
     <Compile Include="Model\StoryContainer.cs" />
     <Compile Include="Services\CommandlineParameters.cs" />
+    <Compile Include="Services\DSLRunner.cs" />
     <Compile Include="Services\ElementRunner.cs" />
-    <Compile Include="Services\Extractors\AssemblyExtractor.cs" />
-    <Compile Include="ClassStory\Story.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\Extractors\TextExtractor.cs" />
+    <Compile Include="Services\Extractors\TextDSLExtractor.cs" />
+    <Compile Include="Services\Extractors\TextStoryExtractor.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -6,7 +6,7 @@ using Be.Corebvba.Aubergine.Interfaces;
 
 namespace Be.Corebvba.Aubergine.Model
 {
-    public class Element : IElement 
+    public class SpecElement : ISpecElement 
     {
 
         #region IElement Members
@@ -36,8 +36,8 @@ namespace Be.Corebvba.Aubergine.Model
             }
         }
 
-        public IEnumerable<IElement> children = new IElement[] {};
-        public IEnumerable<IElement> Children
+        public IEnumerable<ISpecElement> children = new ISpecElement[] {};
+        public IEnumerable<ISpecElement> Children
         {
             get {
                 foreach (var c in children)
@@ -53,12 +53,13 @@ namespace Be.Corebvba.Aubergine.Model
 
         public ElementType Type {get;private set;}
 
-        public IElement Parent {get;set;}
+        public ISpecElement Parent {get;set;}
 
-        public Element(ElementType type, string description) 
+        public SpecElement(ElementType type, string description) 
         {
             this.Type = type;
             this.Description = description;
+            this.status = null;
         }
 
         public string StatusText
@@ -80,10 +81,10 @@ namespace Be.Corebvba.Aubergine.Model
             }
         }
 
-        public IElement Clone()
+        public ISpecElement Clone()
         {
-            var x = new Element(this.Type,this.Description);
-            x.Children = new List<IElement>(Children.Select(c=>c.Clone()));
+            var x = new SpecElement(this.Type,this.Description);
+            x.Children = new List<ISpecElement>(Children.Select(c=>c.Clone()));
             x.Parent = this.Parent;
             return x;
         }

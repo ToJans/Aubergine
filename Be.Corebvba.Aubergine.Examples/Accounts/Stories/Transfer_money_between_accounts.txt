@@ -1,62 +1,64 @@
-﻿
-Context      Be.Corebvba.Aubergine.Examples.Accounts.Contexts.AccountContext
-ContextDLL   Be.Corebvba.Aubergine.Examples.DLL
-
+﻿#
+# use the default context specified on the commandline instead of this
+#
+# parameters : 
+#     -a=Be.Corebvba.Aubergine.Examples.DLL 
+#     -c=Be.Corebvba.Aubergine.Examples.Accounts.Contexts.AccountContext
+#
+# Define a group of accounts
+# using Be.Corebvba.Aubergine.Examples.Accounts.Contexts.AccountContext
+#  from Be.Corebvba.Aubergine.Examples.DLL
 
 Story Transfer money between accounts 
-
+#
+# use the default context specified on the commandline instead of this
+#   
+#	Is about a group of accounts
+#
+	
 	As a user
 	I want to transfer money between accounts
 	So that I can have real use for my money
 
-	Given the balance of AccountA is 3m
-	Given the balance of AccountB is 2m
-	Given the owner of AccountA is the current user
-	
-	Scenario Authenticate the current user as a 'valid or invalid' user
-	    Given the name of the current user is 'username'
-	      And the password of the current user is 'password'
-	    When I request authentication for the current user 
-		Then the process should 'fail or succeed'
+	Given the following users
+	    +----------+-----------+
+		| username | password  |
+	    +----------+-----------+
+		| Neo      | Red pill  |
+		| Oracle   | Blue pill |
+	    +----------+-----------+
 	    
-	    Example
-			+--------------------+------------+------------+------------------+
-			| 'valid or invalid' | 'username' | 'password' | 'fail or succeed'|
-			+--------------------+------------+------------+------------------+
-			| valid              | Neo        | Red pill   | succeed          |
-			| invalid            | Neo        | Blue pill  | fail             |
-			+--------------------+------------+------------+------------------+
-			    
-	Scenario Authenticate the current user for 'an account'
-		Given I did authenticate the current user as a valid user
-		When I request authentication for 'an account' with the current user
-		Then the process should 'fail or succeed'
+	Given the following accounts
+		+---------------+---------+-----------------+
+		| number        | balance | owner           |
+		+---------------+---------+-----------------+
+		| 123-345678-79 |      3m | the user Neo    |
+		| 999-999999-99 |      2m | the user Oracle |
+		+---------------+---------+-----------------+
 		
-		Example accounts :
-			+--------------+-------------------+
-			| 'an account' | 'fail or succeed' |
-			+--------------+-------------------+
-			|  AccountA    | succeed           |
-			|  AccountB    | fail              |
-			+--------------+-------------------+
+	Scenario Login with user Neo
+		Given I go to the login screen
+		  And I enter Neo as the username  
+		  And I enter Red pill as the password
+		 When I click the login button
+		 Then the message of the result should be Welcome Neo
+	
+	Scenario Transfer <an amount> from <from> to <to> using the user <user>
+		When I transfer <an amount> from account <from> to account <to> with the user <user>
+		Then the balance of account <from> should be <frombal>  
+		Then the balance of account <to> should be <tobal>
+		Then the process should <fail or succeed>
 		
+		Example info's
 
-	Scenario Transfer AAm between 2 accounts 
-		Given I did authenticate the current user for AccountA
-		When I transfer AAm from AccountA to AccountB with the current user
-		Then the balance of AccountA should be BBm  
-		Then the balance of AccountB should be CCm  
-		Then the process should 'fail or succeed'
-		
-		Example for the transfer
-
-			+----+----+----+-------------------+
-			| AA | BB | CC | 'fail or succeed' |
-			+----+----+----+-------------------+
-			|  1 |  2 |  3 | succeed           |
-			|  2 |  1 |  4 | succeed           |
-			|  3 |  0 |  5 | succeed           |
-			|  4 |  3 |  2 | fail              |
-			+----+----+----+-------------------+
+		+--------+---------------+---------------+-------------+-----------+---------+-------------------+
+		| <user> | <from>        | <to>          | <an amount> | <frombal> | <tobal> | <fail or succeed> |
+		+--------+---------------+---------------+-------------+-----------+---------+-------------------+
+		| Neo    | 123-345678-79 | 999-999999-99 |          1m |        2m |      3m | succeed           |
+		| Neo    | 123-345678-79 | 999-999999-99 |          2m |        1m |      4m | succeed           |
+		| Neo    | 123-345678-79 | 999-999999-99 |          3m |        0m |      5m | succeed           |
+		| Neo    | 123-345678-79 | 999-999999-99 |          4m |        3m |      2m | fail              |
+		| Oracle | 123-345678-79 | 999-999999-99 |          1m |        3m |      2m | fail              |
+		+--------+---------------+---------------+-------------+-----------+---------+-------------------+
 
 

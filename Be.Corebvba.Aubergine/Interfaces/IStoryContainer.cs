@@ -7,8 +7,8 @@ namespace Be.Corebvba.Aubergine.Interfaces
 {
     public interface IStoryContainer
     {
-        Type ContextType { get; set; }
-        IElement Story { get; set; }
+        ISpecElement Story { get; set; }
         string ColumnToken { get; set; }
+        string ContextName { get; set; }
     }
 }

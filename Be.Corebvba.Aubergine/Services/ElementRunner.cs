@@ -96,7 +96,9 @@ namespace Be.Corebvba.Aubergine.Services
                         l[names[i]].Add("");
                     else
                         l[names[i]].Add(vals[i]);
+                    r.Status = true;
                 }
+                rows[0].Status = true;
             }
             return l;
         }

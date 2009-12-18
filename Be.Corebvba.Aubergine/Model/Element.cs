@@ -86,6 +86,8 @@ namespace Be.Corebvba.Aubergine.Model
             var x = new SpecElement(this.Type,this.Description);
             x.Children = new List<ISpecElement>(Children.Select(c=>c.Clone()));
             x.Parent = this.Parent;
+            x.Status = this.Status;
+            x.StatusInfo = this.StatusInfo;
             return x;
         }
 

@@ -20,12 +20,18 @@ namespace Be.Corebvba.Aubergine.Services
         public IDSLDefinition GetDSL(ISpecElement story,Dictionary<string,IDSLDefinition> dsls)
         {
             var key = story.Description.Trim().ToLower();
-            var n = story.Children.Where(e => e.Type == ElementType.Context).Select(e => e.Description.Trim().ToLower()).FirstOrDefault();
-            if (string.IsNullOrEmpty(n))
-                n = dsls.Keys.First();
+            string contextname=null;
+            var contextelement = story.Children.Where(e => e.Type == ElementType.Context).FirstOrDefault();
+            if (contextelement != null)
+            {
+                contextname = contextelement.Description.Trim().ToLower();
+                contextelement.Status = true;
+            }
+            if (string.IsNullOrEmpty(contextname))
+                contextname = dsls.Keys.First();
             else
                 foreach(var k in dsls.Keys)
-                    if (k.ToLower().Trim()==n.ToLower())
+                    if (k.ToLower().Trim()==contextname.ToLower())
                        return dsls[k];
             return null;
         }
@@ -65,6 +71,7 @@ namespace Be.Corebvba.Aubergine.Services
                 result.Children = newchildren;
                 foreach (var q in result.Children)
                     RunScenario(q, _DslRunner.GetNewContext(), columnseparator, true);
+                result.Status = true;
                 return result;
 
             }
@@ -116,6 +123,7 @@ namespace Be.Corebvba.Aubergine.Services
                 var els = new ElementType[] { ElementType.GivenIdid, ElementType.Given, ElementType.When, ElementType.Then };
                 foreach (var x in element.Children.Where(e => els.Contains(e.Type)))
                      RunStep(x, context, columnseperator);
+                element.Status = true;
             }
             catch (Exception ex)
             {
@@ -141,6 +149,7 @@ namespace Be.Corebvba.Aubergine.Services
                     if (scenario == null)
                         throw new ArgumentException("Unknown scenario : " + element.Description);
                     RunScenario(scenario, context, columnseparator, false);
+                    element.Status = scenario.Status;
                 }
                 else
                 {

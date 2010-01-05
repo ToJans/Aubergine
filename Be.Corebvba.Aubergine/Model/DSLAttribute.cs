@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Be.Corebvba.Aubergine.Model
 {
+    [AttributeUsage(AttributeTargets.Method,AllowMultiple=true)]
     public class DSLAttribute : System.Attribute
     {
         public string MyRegEx { get; set; }
@@ -20,4 +21,8 @@ namespace Be.Corebvba.Aubergine.Model
             TableParameterName = tableParameterName;
         }
     }
+
+    public class GivenAttribute : DSLAttribute { }
+    public class WhenAttribute : DSLAttribute { }
+    public class ThenAttribute : DSLAttribute { }
 }

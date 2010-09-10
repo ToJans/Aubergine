@@ -1,13 +1,4 @@
-﻿/*
- * Gemaakt met SharpDevelop.
- * Gebruiker: ServicePC
- * Datum: 10-8-2010
- * Tijd: 15:36
- * 
- * Dit sjabloon wijzigen: Extra | Opties |Coderen | Standaard kop bewerken.
- */
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
